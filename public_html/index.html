@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Bootstrap Example</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script
+src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script
+src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src=" http://login2explore.com/jpdb/resources/js/0.0.3/jpdb-commons.js "></script>
+</head>
+<body>
+<div class="container">
+<h2>Student Enrollment Form</h2>
+<form id="stuForm" method="post">
+<div class="form-group">
+<span><label for="sturoll_no">Roll No.:</label> <label id="sturoll_noMsg">
+</label></span>
+<input type="text" class="form-control" name="sturoll_no" id="sturoll_no" onchange="getStu()"
+placeholder="Enter Student Roll No." required>
+</div>
+<div class="form-group">
+<label for="stuname">Full Name:</label>
+<input type="text" class="form-control" id="stuname"
+placeholder="Enter Full Name" name="stuname">
+</div>
+<div class="form-group">
+<label for="stunClass">Class:</label>
+<input type="text" class="form-control" id="stunClass"
+placeholder="Enter Student’s Class" name="stunClass">
+</div>
+    <div class="form-group">
+<label for="stubirth_date">Birth Date:</label>
+<input type="text" class="form-control" id="stubirth_date"
+placeholder="Enter Birth date" name="stubirth_date">
+</div>
+   <div class="form-group">
+<label for="stuAdd">Address:</label>
+<input type="text" class="form-control" id="stuAdd"
+placeholder="Enter Student’s Address" name="stuAdd">
+</div>
+    <div class="form-group">
+<label for="StuEnroll">Enrollment date:</label>
+<input type="text" class="form-control" id="StuEnroll"
+placeholder="Enter Student’s Enrollment Date" name="StuEnroll">
+</div>
+    <div ><center>
+<button type="button" class="btn btn-primary" id="Save" value="Save"
+        onclick="saveSCHOOLDB();" disabled>Save</button>
+<button type="button" class="btn btn-primary" id="Update" value="Update"
+onclick="UpdateData();" disabled>Update</button>
+        <button type="button" class="btn btn-primary" id="Reset" value="Reset"
+onclick="resetForm();" disabled>Reset</button></center>
+</div>
+</form>
+</div>
+    <script>
+    function saveRecNo2LS(jsonObj) {
+var lvData = JSON.parse(jsonObj.data); 
+localStorage.setItem("recno", lvData.rec_no);
+//alert(lvData.rec_no);
+ }    
+    function getsturoll_noAsJsonObj() 
+{ var sturoll_no =$("#sturoll_no").val();
+var jsonStr ={
+ sturoll_no: sturoll_no   
+};
+return JSON.stringify(jsonStr);
+
+}
+function fillData(jsonObj) {
+
+saveRecNo2LS(jsonObj);
+var record= JSON.parse(jsonObj.data).record;
+$("#stuname").val(record.stuname);
+$('#stunClass').val(record.stunClass);
+$('#stubirth_date').val(record.stubirth_date);
+$("#stuAdd").val(record.stuAdd);
+$("#StuEnroll").val(record.StuEnroll);
+ }
+ 
+
+            function getStu() {
+var sturoll_noJsonObj = getsturoll_noAsJsonObj();
+var getRequest= createGET_BY_KEYRequest("90931657|-31949326793976983|90961463", "SCHOOL-DB", "STUDENT-TABLE", sturoll_noJsonObj);
+ jQuery.ajaxSetup({async: false});
+ var resJsonObj = executeCommandAtGivenBaseUrl(getRequest,"http://api.login2explore.com:5577", "/api/irl");
+ //alert(resJsonObj.status);
+jQuery.ajaxSetup({async: true}); 
+if (resJsonObj.status === 400)
+{
+    $("#Save").prop("disabled", false);
+$("#Reset").prop("disabled", false);
+$("#stuname").focus();
+
+} 
+else if (resJsonObj.status === 200) {
+$("sturoll_no").prop("disabled", true); 
+fillData(resJsonObj);
+$("#Update").prop("disabled", false); 
+$("#Reset").prop("disabled", false);
+
+$("#stuname").focus();
+
+}
+    
+    }
+    function resetForm() {
+$("#sturoll_no").val("");
+$("#stuname").val("");
+$("#stunClass").val("");
+$("#stubirth_date").val("");
+$("#stuAdd").val("");
+$("#StuEnroll").val("");
+$("#sturoll_no").prop("disabled", falsAe);
+$("#Save").prop("disabled", true);
+$("#Update").prop("disabled", true);
+$("#Reset").prop("disabled", true);
+$("#sturoll_no").focus();
+}
+        
+    function validateAndGetFormData() {
+    
+var sturoll_noVar = $("#sturoll_no").val();
+if (sturoll_noVar === "") {
+alert("Student Roll No. Required");
+$("#sturoll_no").focus();
+return "";
+}
+var stunameVar = $("#stuname").val();
+if (stunameVar === "") {
+alert("Student Full Name is Required ");
+$("#stuname").focus();
+return "";
+}
+var stunClassVar = $("#stunClass").val();
+if (stunClassVar === "") {
+alert("Student Class Required ");
+$("#stunClass").focus();
+return "";
+}
+var stubirth_dateVar = $("#stubirth_date").val();
+if (stubirth_dateVar === "") {
+alert("Student Birth Date is Required ");
+$("#stubirth_date").focus();
+return "";
+}
+var stuAddVar = $("#stuAdd").val();
+if (stubirth_dateVar === "") {
+alert("Student Address is Required");
+$("#stuAdd").focus();
+return "";
+}
+var StuEnrollVar = $("#StuEnroll").val();
+if (StuEnrollVar === "") {
+alert("Student Enrollment date is Required");
+$("#StuEnroll").focus();
+return "";
+}
+
+var jsonStrObj = {
+sturoll_no: sturoll_noVar,
+stuname: stunameVar,
+stunClass: stunClassVar,
+stubirth_date: stubirth_dateVar,
+stuAdd: stuAddVar,
+StuEnroll: StuEnrollVar
+};
+return JSON.stringify(jsonStrObj);
+}
+// This method is used to create PUT Json request.
+
+
+
+        function saveSCHOOLDB() {
+var jsonStr = validateAndGetFormData();
+if (jsonStr === "") {
+return;
+}
+var putReqStr = createPUTRequest("90931657|-31949326793976983|90961463",
+jsonStr, "SCHOOL-DB", "STUDENT-TABLE");
+alert(putReqStr);
+jQuery.ajaxSetup({async: false});
+var resultObj = executeCommandAtGivenBaseUrl(putReqStr, "http://api.login2explore.com:5577", "/api/iml");
+jQuery.ajaxSetup({async: true});
+alert(JSON.stringify(resultObj));
+resetForm();
+$("#sturoll_no").focus();
+}
+        function UpdateData() {
+$("#Update").prop("disabled", true);
+jsonchg = validateAndGetFormData();
+
+var updateRequest = createUPDATERecordRequest("90931657|-31949326793976983|90961463",jsonchg , "SCHOOL-DB", "STUDENT-TABLE", localStorage.getItem("recno"));
+jQuery.ajaxSetup({async: false});
+var resJsonObj = executeCommandAtGivenBaseUrl(updateRequest, "http://api.login2explore.com:5577", "/api/iml"); 
+jQuery.ajaxSetup({async: true}); 
+console.log(resJsonObj);
+resetForm();
+$("#sturoll_no").focus();
+}
+
+ 
+ 
+ 
+
+    </script>
+    </body>
+</html>
+
+
+
